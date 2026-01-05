@@ -9,28 +9,7 @@ Nova-Pulsar is a Claude Code plugin that separates planning from execution:
 - **Nova** (`/nova`) - Intelligent planning agent that researches your codebase, asks clarifying questions, and creates structured execution plans
 - **Pulsar** (`/pulsar`) - Execution agent that implements plans with maximum parallelization
 - **Orbiter** - Background scheduler that intelligently picks which plan to execute next
-- **Merge** (`/merge`) - Merges completed worktrees into main
-- **Archive** (`/archive`) - Discards plans without merging
-
-## Installation
-
-1. Clone this repo to `~/.claude/plugins/nova-pulsar`
-2. Add to `~/.claude/plugins/installed_plugins.json`:
-```json
-"nova-pulsar": [{
-  "scope": "user",
-  "installPath": "/path/to/.claude/plugins/nova-pulsar",
-  "version": "2.0.0",
-  "isLocal": true
-}]
-```
-3. Enable in `~/.claude/settings.json`:
-```json
-"enabledPlugins": {
-  "nova-pulsar": true
-}
-```
-4. Restart Claude Code
+- **Archive** (`/archive`) - Archives completed or cancelled plans
 
 ## Commands
 
@@ -49,16 +28,11 @@ Pulsar executes plans with:
 - Intelligent parallelization (analyzes dependencies, maximizes parallel execution)
 - Quality gates after each round (Dead Code Agent + Test Agent in parallel)
 - TDD approach (write tests if none exist)
-- Git worktree isolation
 - Autonomous execution (no user interaction mid-execution)
 
-### `/merge <plan-id>` - Merge Completed Plan
+### `/archive <plan-id>` - Archive Plan
 
-Merges the worktree branch into main and cleans up.
-
-### `/archive <plan-id>` - Discard Plan
-
-Archives a plan without merging, removes worktree and branch.
+Archives a completed or cancelled plan.
 
 ## Folder Structure
 
@@ -97,8 +71,6 @@ Save to queued/auto or queued/manual
   ↓
 Load Plan → Analyze for parallelism
   ↓
-Create Worktree
-  ↓
 Round 1: Phase 1 + Phase 2 (parallel)
   ↓
 Quality Gate: Dead Code + Test Agent (parallel)
@@ -109,11 +81,9 @@ Quality Gate: Dead Code + Test Agent (parallel)
   ↓
 Finalize → Move to review
 
-/merge plan-id
+/archive plan-id
   ↓
-Merge worktree → main
-  ↓
-Cleanup → Archive
+Move plan to archived/
 ```
 
 ## Auto-Execution
@@ -122,7 +92,10 @@ For background execution, use the watcher daemon:
 
 ```bash
 # Start watcher (polls every 5 minutes)
-~/comms/scripts/pulsar-watcher.sh &
+systemctl --user start pulsar-watcher
+
+# Or run manually
+~/.claude/plugins/marketplaces/local-plugins/plugins/nova-pulsar/scripts/pulsar-watcher.sh &
 
 # Plans in queued/auto/ will be picked up automatically
 ```

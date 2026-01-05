@@ -1,6 +1,6 @@
 ---
 name: pulsar
-description: Execute a plan created by Nova. Creates a git worktree, intelligently parallelizes phases, manages tests and cleanup.
+description: Execute a plan created by Nova. Intelligently parallelizes phases, manages tests and cleanup.
 arguments:
   - name: plan-id
     description: The plan ID to execute (e.g., plan-20260105-1530)
@@ -116,15 +116,10 @@ Optimal execution:
   Round 2: Phase 3, Phase 4, Phase 5 (all parallel!)
 ```
 
-### Step 3: Create Worktree
-
-```bash
-git worktree add ../worktree-{plan-id} -b plan/{plan-id}
-```
+### Step 3: Start Execution
 
 Update board.json:
 - status: "active"
-- worktree: path
 - startedAt: timestamp
 
 Move plan from `queued/` to `active/`
@@ -319,25 +314,23 @@ Add execution log:
 **Auto mode**:
 ```
 Plan {id} executed.
-- Worktree: ../worktree-{id}
 - Execution: 2 rounds, 7 agents total
 - Quality Gates: 2/2 passed (after each round)
 - Tests: All passing
 - Dead Code: Cleaned
 - Status: In review
-- Next: /merge {id} or /archive {id}
+- Next: /archive {id} when done
 ```
 
 **Manual mode**:
 ```
 Plan {id} executed.
-- Worktree: ../worktree-{id}
 - Execution: 2 rounds, 7 agents total
 - Quality Gates: 2/2 passed (after each round)
 - Tests: All passing
 - Dead Code: Cleaned
 - Status: Active
-- Next: Review, then /merge or /archive
+- Next: Review, then /archive
 ```
 
 ## Parallelism Decision Guide
@@ -364,7 +357,6 @@ Plan {id} executed.
 **Actually stop (rare):**
 | Error | Action |
 |-------|--------|
-| Worktree creation fails | Cannot proceed without isolation |
 | Git repo corrupted | Cannot commit |
 | All phases failed | Nothing succeeded |
 
