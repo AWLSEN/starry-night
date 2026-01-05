@@ -290,7 +290,6 @@ Execution:
   "status": "queued",
   "executionMode": "auto",
   "path": "queued/auto/plan-20260105-1530.md",
-  "worktree": null,
   "createdAt": "2026-01-05T15:30:00Z",
   "phases": 4,
   "parallelGroups": 2
