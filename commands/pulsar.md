@@ -264,51 +264,23 @@ Done → Finalize
 
 Launch these two agents IN PARALLEL after every round (both Task calls in ONE response):
 
-**Test Agent**:
+**Use the plugin agents:**
 ```
-You are the Test Agent for Round {N}.
+Task #1:
+  subagent_type: "nova-pulsar:test-agent"
+  prompt: "Round {N}. Files modified: {list of files}"
 
-Files modified this round:
-{list of files from completed phases}
-
-Tasks:
-1. If tests exist for these files → Run them
-2. If tests DON'T exist → Write unit tests
-3. Run ALL tests for modified files
-4. If failures → Fix and re-run (max 2 retries)
-5. All tests MUST pass before you're done
-
-Do NOT ask the user anything. Fix issues autonomously.
+Task #2:
+  subagent_type: "nova-pulsar:dead-code-agent"
+  prompt: "Round {N}. Files modified: {list of files}"
 ```
 
-**Dead Code Agent**:
-```
-You are the Dead Code Agent for Round {N}.
+**What each agent does:**
 
-Files modified this round:
-{list of files from completed phases}
-
-SCOPE LIMITATION:
-- ONLY clean up dead code CAUSED BY this round's phases
-- Do NOT clean up pre-existing dead code in the codebase
-- Focus on: imports/variables/functions that became unused due to THIS round's changes
-
-Tasks:
-1. Review the diff of changes made in this round
-2. Identify code that became dead BECAUSE of these changes:
-   - Imports that were used but are now unused
-   - Variables that were referenced but are now orphaned
-   - Functions that were called but are now unreferenced
-3. Remove ONLY the newly-dead code
-4. Commit: "chore: remove dead code from Round {N}"
-
-Examples:
-✅ Phase removed a function call → remove the now-unused function
-✅ Phase replaced an import → remove the old unused import
-❌ Found old unused variable unrelated to this phase → IGNORE IT
-
-Do NOT ask the user anything. Clean up autonomously.
-```
+| Agent | Purpose |
+|-------|---------|
+| `test-agent` | Runs existing tests, writes missing tests, ensures all pass |
+| `dead-code-agent` | Removes code that became unused due to THIS round's changes |
 
 **Both agents run in parallel** - they don't conflict because:
 - Dead Code Agent: Removes unused code

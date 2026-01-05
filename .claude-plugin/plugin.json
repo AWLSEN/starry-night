@@ -1,9 +1,9 @@
 {
   "name": "nova-pulsar",
-  "version": "2.0.0",
-  "description": "Planning and execution framework with intelligent scheduling. Nova plans, Pulsar executes, Orbiter schedules.",
+  "version": "2.1.0",
+  "description": "Planning and execution framework with intelligent scheduling. Nova plans, Pulsar executes, Orbiter schedules. Includes quality gate agents for testing and dead code cleanup.",
   "author": {
     "name": "User"
   },
-  "keywords": ["planning", "execution", "parallel", "worktree", "automation"]
+  "keywords": ["planning", "execution", "parallel", "worktree", "automation", "testing", "quality"]
 }
