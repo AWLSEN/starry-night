@@ -1,0 +1,9 @@
+{
+  "name": "nova-pulsar",
+  "version": "2.0.0",
+  "description": "Planning and execution framework with intelligent scheduling. Nova plans, Pulsar executes, Orbiter schedules.",
+  "author": {
+    "name": "User"
+  },
+  "keywords": ["planning", "execution", "parallel", "worktree", "automation"]
+}
