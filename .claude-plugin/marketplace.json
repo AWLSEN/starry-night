@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "nova-pulsar",
-      "source": ".",
+      "source": "./",
       "description": "Planning and execution framework with intelligent scheduling. Nova plans, Pulsar executes.",
       "version": "2.2.0"
     }
