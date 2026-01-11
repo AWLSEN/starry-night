@@ -31,7 +31,25 @@ We optimize for **cost and performance** by using the right model for each task:
 | Medium | Opus | Standard coding tasks |
 | Low | Sonnet | Fast & cheap for simple changes |
 
-This means simple tasks use Sonnet (cheaper), complex tasks use Opus (smarter).
+Simple tasks use Sonnet (cheaper), complex tasks use Opus (smarter).
+
+## Parallel Execution (Rounds)
+
+Pulsar runs phases **in parallel** when they don't depend on each other:
+
+```
+Plan: Add auth system
+├── Phase 1: Create User model
+├── Phase 2: Create Auth service
+├── Phase 3: Create API endpoints (needs 1 & 2)
+└── Phase 4: Add tests
+
+Pulsar figures out:
+  Round 1: Phase 1 + Phase 2 + Phase 4  ← run together (independent)
+  Round 2: Phase 3                       ← waits for Round 1
+```
+
+Phases that touch **different files** run at the same time. Phases that **depend on others** wait.
 
 ## Install
 
