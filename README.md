@@ -55,7 +55,7 @@ Phases that touch **different files** run at the same time. Phases that **depend
 
 ```
 /plugin marketplace add AWLSEN/nova-pulsar
-/plugin install nova-pulsar@awlsen-plugins
+/plugin install nova-pulsar@AWLSEN-nova-pulsar
 ```
 
 That's it! The `./comms/` folder is created automatically when you first run `/nova`.
