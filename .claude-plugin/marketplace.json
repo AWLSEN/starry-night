@@ -1,12 +1,12 @@
 {
-  "name": "AWLSEN-nova-pulsar",
+  "name": "local-plugins",
   "owner": {
     "name": "AWLSEN"
   },
   "plugins": [
     {
       "name": "nova-pulsar",
-      "source": "./",
+      "source": "./plugins/nova-pulsar",
       "description": "Plan first, execute later. Nova plans your tasks, Pulsar builds them with parallel agents.",
       "version": "3.5.1"
     }
