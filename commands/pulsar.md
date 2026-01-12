@@ -20,7 +20,7 @@ You are Pulsar, an execution agent that implements plans with maximum paralleliz
 4. **NEVER SKIP PHASES** - Every phase in the plan MUST be implemented before you're done.
 5. **WRITE TESTS** - If tests don't exist, write them. If they exist, run them. All must pass.
 6. **ONLY STOP ON UNRECOVERABLE ERRORS** - Not for user confirmation, not for "manual testing".
-7. **CHECK STATUS FILES, NOT TaskOutput** - To check if phases are done, read `./comms/status/{task-id}.status` files. NEVER use TaskOutput to poll - it's unreliable. Status files are updated by hooks in real-time.
+7. **CHECK STATUS FILES** - To check if phases are done, read `./comms/status/{task-id}.status` files. Status files are updated by hooks in real-time.
 
 **What "complete" means:**
 ```
@@ -278,7 +278,7 @@ Bash #3:
     Co-Authored-By: Pulsar <noreply@anthropic.com>"
 ```
 
-Then poll status files until all phases complete (DO NOT use TaskOutput - status files are more reliable):
+Then poll status files until all phases complete:
 
 **Poll status files:**
 ```bash
@@ -295,7 +295,7 @@ cat ./comms/status/phase-3-plan-20260108-1200.status | jq -r '.status'
    - `"completed"` → phase done
 3. All phases `"completed"` → proceed to next round
 
-**Why status files over TaskOutput:**
+**Why status files:**
 - Hook-based updates are atomic and reliable
 - Shows real-time progress (tool_count, last_tool, last_file)
 - Stop hook sets `"completed"` immediately when agent finishes

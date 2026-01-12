@@ -8,7 +8,7 @@
       "name": "nova-pulsar",
       "source": "./",
       "description": "Plan first, execute later. Nova plans your tasks, Pulsar builds them with parallel agents.",
-      "version": "3.5.0"
+      "version": "3.5.1"
     }
   ]
 }
