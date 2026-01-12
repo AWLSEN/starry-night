@@ -15,7 +15,7 @@ PLANS_DIR="./comms/plans"
 AUTO_QUEUE="$PLANS_DIR/queued/auto"
 ACTIVE_DIR="$PLANS_DIR/active"
 LOGS_DIR="$PLANS_DIR/logs"
-SCRIPTS_DIR="$HOME/.claude/plugins/marketplaces/local-plugins/scripts"
+SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")"
 WATCHER_LOG="$LOGS_DIR/watcher.log"
 
 # Default: 5 minutes

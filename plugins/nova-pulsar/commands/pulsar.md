@@ -308,9 +308,9 @@ cat ./comms/status/phase-3-plan-20260108-1200.status | jq -r '.status'
 3. All phases `"completed"` → proceed to next round
 
 **Why status files:**
-- Self-contained - each spawn writes its own status (no plugin hooks required)
-- Wrapper pattern: write "running" → run agent → write "completed"
-- Works in any environment without configuration
+- Hook-based updates are atomic and reliable
+- Shows real-time progress (tool_count, last_tool, last_file)
+- Stop hook sets `"completed"` immediately when agent finishes
 
 **TDD approach (MANDATORY for all agents):**
 

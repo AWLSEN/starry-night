@@ -42,7 +42,7 @@ echo "$(date -Iseconds) - Starting auto-execution of $PLAN_ID" | tee "$LOG_FILE"
 # Run Claude in non-interactive mode with Pulsar
 # Using --allowedTools to auto-approve necessary tools
 nohup claude -p "Execute plan $PLAN_ID using /pulsar. The plan is located at $PLAN_FILE. Execute all phases, run tests, and move to review when complete." \
-    --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TaskOutput,TodoWrite" \
+    --allowedTools "Read,Write,Edit,Glob,Grep,Bash,Task,TodoWrite" \
     --output-format text \
     >> "$LOG_FILE" 2>&1 &
 
