@@ -292,25 +292,41 @@ Bash #3:
 
 Then poll status files until all phases complete:
 
-**Poll status files:**
+**Poll status files (compact v2 format):**
 ```bash
-# Check each phase's status file
-cat ./comms/status/phase-1-plan-20260108-1200.status | jq -r '.status'
-cat ./comms/status/phase-2-plan-20260108-1200.status | jq -r '.status'
-cat ./comms/status/phase-3-plan-20260108-1200.status | jq -r '.status'
+# Check each phase's status
+cat ./comms/status/phase-1-plan-20260108-1200.status | jq -r '.s'
+cat ./comms/status/phase-2-plan-20260108-1200.status | jq -r '.s'
+cat ./comms/status/phase-3-plan-20260108-1200.status | jq -r '.s'
 ```
+
+**Status v2 format:**
+```json
+{"id":"phase-1-plan-...","s":"run","t":"...","n":47,"tools":["Read","Edit","Read","Edit","Bash"],"file":"src/auth.rs","stage":"impl"}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `id` | Task identifier |
+| `s` | Status: `run` / `done` / `err` |
+| `t` | Last updated timestamp |
+| `n` | Tool count |
+| `tools` | Last 5 tools (for diversity detection) |
+| `file` | Last file touched |
+| `stage` | Inferred: `explore` / `impl` / `test` / `clean` |
 
 **Polling loop:**
 1. Read each phase's status file from `./comms/status/`
-2. Check `"status"` field:
-   - `"running"` → still working, wait 30 seconds and re-check
-   - `"completed"` → phase done
-3. All phases `"completed"` → proceed to next round
+2. Check `s` field:
+   - `"run"` → still working, check tool diversity
+   - `"done"` → phase complete
+3. All phases `"done"` → proceed to next round
 
 **Why status files:**
 - Hook-based updates are atomic and reliable
-- Shows real-time progress (tool_count, last_tool, last_file)
-- Stop hook sets `"completed"` immediately when agent finishes
+- `tools` array shows work diversity (not stuck in loop)
+- `stage` indicates what type of work is happening
+- Stop hook sets `"done"` immediately when agent finishes
 
 **TDD approach (MANDATORY for all agents):**
 
@@ -498,7 +514,7 @@ Plan {id} executed.
 
 ## Monitoring Long-Running Phases
 
-For phases running >10 minutes, check status files to detect stuck agents.
+Use **tool diversity** to detect stuck agents - not just timestamps.
 
 **Location:** `./comms/status/phase-{N}-{plan-id}.status`
 
@@ -507,26 +523,39 @@ For phases running >10 minutes, check status files to detect stuck agents.
 cat ./comms/status/phase-1-plan-20260108-1200.status
 ```
 
-**Status file format:**
+**Status v2 format:**
 ```json
-{
-  "task_id": "phase-1-plan-20260108-1200",
-  "status": "running",
-  "updated_at": "2026-01-08T12:35:22Z",
-  "tool_count": 47,
-  "last_tool": "Edit",
-  "last_file": "src/auth/oauth.ts"
-}
+{"id":"phase-1-plan-...","s":"run","t":"2026-01-08T12:35:22Z","n":47,"tools":["Read","Edit","Read","Edit","Bash"],"file":"src/auth.rs","stage":"impl"}
 ```
 
-**Decision logic:**
+**Tool Diversity Decision Logic:**
 
-| status | updated_at | Action |
-|--------|------------|--------|
-| `"completed"` | any | Phase done - proceed to next round |
-| `"running"` | < 5 min ago | Still working - wait 30 seconds, re-check |
-| `"running"` | > 10 min stale | Likely stuck - kill and retry |
-| File missing | - | Phase never started or crashed |
+| `s` | `tools` array | `t` (updated) | Interpretation | Action |
+|-----|---------------|---------------|----------------|--------|
+| `done` | any | any | Phase complete | Proceed to next round |
+| `run` | Diverse (varied tools) | < 10 min | Healthy progress | Wait 30s, re-check |
+| `run` | Diverse | > 10 min | Slow but working | Wait longer (20 min) |
+| `run` | 5x same tool (not Read) | any | Possible loop | Investigate |
+| `run` | 5x Read only | any | Deep exploration | Expected - wait |
+| `run` | 5x Bash | any | Running tests | Expected - use test timeout (30 min) |
+| `run` | `n` not changing | > 5 min | Truly stuck | Kill and retry |
+| missing | - | - | Never started or crashed | Log error |
+
+**Timeout by stage:**
+| `stage` | Timeout before intervention |
+|---------|----------------------------|
+| `explore` | 15 min |
+| `impl` | 20 min |
+| `test` | 30 min |
+| `clean` | 10 min |
+
+**Loop Detection:**
+```bash
+# Check if tools are all the same (possible loop)
+tools=$(cat ./comms/status/phase-1-plan-xxx.status | jq -c '.tools')
+is_loop=$(echo "$tools" | jq 'unique | length == 1')
+# true = all same tool (investigate), false = healthy diversity
+```
 
 **If stuck:**
 1. Kill with `KillShell` on the task
