@@ -1,0 +1,14 @@
+{
+  "name": "AWLSEN-nova-pulsar",
+  "owner": {
+    "name": "AWLSEN"
+  },
+  "plugins": [
+    {
+      "name": "nova-pulsar",
+      "source": "./",
+      "description": "Plan first, then execute. Break down complex tasks into plans and execute them with parallel agents.",
+      "version": "3.0.0"
+    }
+  ]
+}

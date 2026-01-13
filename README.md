@@ -54,7 +54,11 @@ Phases that touch **different files** run at the same time. Phases that **depend
 ## Install
 
 ```bash
-/install github:AWLSEN/nova-pulsar
+# Add the marketplace (one-time)
+/plugin marketplace add AWLSEN/nova-pulsar
+
+# Install the plugin
+/plugin install nova-pulsar@AWLSEN-nova-pulsar
 ```
 
 Then restart your Claude Code session for the hooks to load.
