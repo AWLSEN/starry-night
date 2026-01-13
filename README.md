@@ -18,7 +18,6 @@ You: /pulsar
 
 - **Nova** - Researches your codebase, asks questions, creates a step-by-step plan
 - **Pulsar** - Executes the plan using multiple agents in parallel
-- **Rover** - Explores your codebase (read-only) to help you understand it
 
 ## Smart Model Routing
 
@@ -94,6 +93,24 @@ Pulsar will:
 - Clean up dead code
 - Notify you when done
 
+### Understanding Plan IDs
+
+Each plan gets an ID like `plan-20260113-1430`. You'll see it when Nova saves your plan.
+
+- **Just run `/pulsar`** - Picks the most recent queued plan automatically
+- **Run `/pulsar plan-20260113-1430`** - Execute a specific plan
+
+To see your queued plans: `ls ~/comms/plans/queued/manual/`
+
+### Execution Modes
+
+Nova will ask about execution mode:
+
+- **Manual** (recommended): You run `/pulsar` when you're ready to execute
+- **Auto** (coming soon): A background systemd service will watch the auto queue and execute plans automatically - perfect for "fire and forget" workflows
+
+For now, use **Manual** mode.
+
 ### 3. Archive when finished
 
 ```
@@ -107,18 +124,27 @@ Pulsar will:
 | `/nova <description>` | Create a plan for your task |
 | `/pulsar` | Execute the latest plan |
 | `/pulsar <plan-id>` | Execute a specific plan |
-| `/rover` | Explore codebase (read-only) |
 | `/archive <plan-id>` | Archive a completed plan |
 
-## Optional: Codex for Better Research
+## Enhanced Research with Codex (Optional)
 
-Nova works even better with OpenAI Codex for parallel research and architectural analysis:
+Nova automatically detects if Codex is available. If installed, it uses Codex for faster parallel codebase research. If not, it seamlessly falls back to Claude's native Explore agents.
+
+**You don't need Codex** - Nova works great without it. But if you want faster research on large codebases:
 
 ```bash
 npm install -g @openai/codex
 ```
 
-Without Codex, Nova falls back to Claude's built-in Explore agent (still works fine).
+The orchestrator is smart enough to use whatever's available.
+
+## Questions or Feedback?
+
+Reach out to us on Twitter:
+- [@OAFTOBARKK](https://twitter.com/OAFTOBARKK)
+- [@artmarryscience](https://twitter.com/artmarryscience)
+
+Or open an issue in the repository.
 
 ## License
 
