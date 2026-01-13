@@ -163,6 +163,13 @@ Update board.json:
 
 Move plan from `queued/` to `active/`
 
+**Create status directory for sub-agent progress tracking:**
+```bash
+mkdir -p ~/comms/plans/active/{plan-id}/status
+```
+
+This directory holds per-phase `.status` files written automatically by hooks in sub-agents. The orchestrator can poll these files to monitor progress while waiting for TaskOutput.
+
 ### Step 4: Execute with Maximum Parallelism
 
 For each execution round:
@@ -210,19 +217,21 @@ Response 3: Task(Phase 5) → wait → result
 
 **Example - Phase 1 (High Architectural) + Phase 2 (Medium) in parallel:**
 
-Launch BOTH Bash calls in ONE response:
+Launch BOTH Bash calls in ONE response. **CRITICAL: Set `PULSAR_TASK_ID` env var** for status tracking:
 
 ```
 Bash #1:
   description: "Phase 1 - Codex"
   run_in_background: true
-  command: "codex exec --dangerously-bypass-approvals-and-sandbox 'You are implementing Phase 1 of plan-20260108-1200. RULES: Implement COMPLETELY, no user interaction, write tests, run tests, commit (no push). Phase: Refactor Authentication Architecture. Files: src/auth/, src/middleware/auth.ts'"
+  command: "PULSAR_TASK_ID=phase-1-plan-20260108-1200 codex exec --dangerously-bypass-approvals-and-sandbox 'You are implementing Phase 1 of plan-20260108-1200. RULES: Implement COMPLETELY, no user interaction, write tests, run tests, commit (no push). Phase: Refactor Authentication Architecture. Files: src/auth/, src/middleware/auth.ts'"
 
 Bash #2:
   description: "Phase 2 - Opus"
   run_in_background: true
-  command: "claude --dangerously-skip-permissions 'You are implementing Phase 2 of plan-20260108-1200. RULES: Implement COMPLETELY, no user interaction, write tests, run tests, commit (no push). Phase: Implement OAuth Integration. Files: src/auth/oauth.ts'"
+  command: "PULSAR_TASK_ID=phase-2-plan-20260108-1200 claude --dangerously-skip-permissions 'You are implementing Phase 2 of plan-20260108-1200. RULES: Implement COMPLETELY, no user interaction, write tests, run tests, commit (no push). Phase: Implement OAuth Integration. Files: src/auth/oauth.ts'"
 ```
+
+The `PULSAR_TASK_ID` env var triggers status file hooks in sub-agents. Format: `phase-{N}-{plan-id}`
 
 Then retrieve results:
 
@@ -230,6 +239,54 @@ Then retrieve results:
 TaskOutput: task_id={Bash #1 id}
 TaskOutput: task_id={Bash #2 id}
 ```
+
+### Step 5a: Monitor Sub-Agent Progress (Status Polling)
+
+While waiting for TaskOutput, poll status files to monitor sub-agent progress:
+
+**Status File Location:** `~/comms/plans/active/{plan-id}/status/phase-{N}.status`
+
+**Status File Format:**
+```json
+{
+  "task_id": "phase-1-plan-20260108-1200",
+  "status": "running",
+  "tool_count": 15,
+  "last_tool": "Edit",
+  "last_file": "src/auth/service.ts",
+  "updated_at": "2026-01-08T12:05:22Z",
+  "started_at": "2026-01-08T12:00:00Z"
+}
+```
+
+**Polling Strategy:**
+1. Wait 5 seconds after spawning phases
+2. Read status files every 5 seconds
+3. If `tool_count` increases → agent is working
+4. If `tool_count` unchanged for 60s → log warning (may be hung)
+5. If `status` = "completed" → agent finished
+
+**Example polling (between Bash spawn and TaskOutput):**
+```bash
+for i in {1..60}; do
+    for phase in 1 2; do
+        STATUS_FILE="$HOME/comms/plans/active/{plan-id}/status/phase-${phase}.status"
+        if [[ -f "$STATUS_FILE" ]]; then
+            cat "$STATUS_FILE" | jq -c '{phase: .task_id, status: .status, tools: .tool_count, last: .last_tool}'
+        fi
+    done
+    sleep 5
+done
+```
+
+**Progress Display:**
+```
+Executing Round 1 (Phase 1, 2)...
+  Phase 1 (Codex): 12 tools, last: Edit src/auth/service.ts
+  Phase 2 (Opus): 8 tools, last: Bash npm test
+```
+
+**Hung Agent Detection:** If `tool_count` unchanged for 60+ seconds, the agent may be hung. Log a warning but continue waiting - some operations (like large builds) take time.
 
 **Agent-Specific Guarantees:**
 
@@ -315,12 +372,12 @@ Use Bash tool with `run_in_background: true` - include ALL Bash calls in ONE res
 Bash #1:
   description: "Phase 1 - Codex"
   run_in_background: true
-  command: "codex exec --dangerously-bypass-approvals-and-sandbox 'Phase 1: {description}. Files: {files}. RULES: Implement completely, write tests, commit (no push)'"
+  command: "PULSAR_TASK_ID=phase-1-{plan-id} codex exec --dangerously-bypass-approvals-and-sandbox 'Phase 1: {description}. Files: {files}. RULES: Implement completely, write tests, commit (no push)'"
 
 Bash #2:
   description: "Phase 2 - Opus"
   run_in_background: true
-  command: "claude --dangerously-skip-permissions 'Phase 2: {description}. Files: {files}. RULES: Implement completely, write tests, commit (no push)'"
+  command: "PULSAR_TASK_ID=phase-2-{plan-id} claude --dangerously-skip-permissions 'Phase 2: {description}. Files: {files}. RULES: Implement completely, write tests, commit (no push)'"
 ```
 
 **Then retrieve results:**
@@ -526,18 +583,21 @@ Step 2: Analyze parallelism and agent selection
 
 Step 3: Move plan to ~/comms/plans/active/, update board.json
 
-Step 4: Execute Round 1 (via Bash)
+Step 4: Execute Round 1 (via Bash with PULSAR_TASK_ID for status tracking)
 # Phase 1: High (Architectural) → codex
-codex exec --dangerously-bypass-approvals-and-sandbox \
+PULSAR_TASK_ID=phase-1-plan-20260108-1200 codex exec --dangerously-bypass-approvals-and-sandbox \
   "Phase 1: Refactor Authentication Architecture
    Files: src/auth/
    RULES: Complete fully, no user interaction, write tests, commit (no push)" &
 
 # Phase 2: High (Implementation) → opus (default)
-claude --dangerously-skip-permissions \
+PULSAR_TASK_ID=phase-2-plan-20260108-1200 claude --dangerously-skip-permissions \
   "Phase 2: Implement OAuth Integration
    Files: src/auth/oauth.ts
    RULES: Complete fully, no user interaction, write tests, commit (no push)" &
+
+# Poll status files while waiting (optional)
+# cat ~/comms/plans/active/plan-20260108-1200/status/phase-*.status | jq -c .
 
 wait
 
@@ -546,15 +606,15 @@ claude --dangerously-skip-permissions "Run tests for modified files" &
 claude --dangerously-skip-permissions "Remove dead code from this round" &
 wait
 
-Step 5: Execute Round 2 (via Bash)
+Step 5: Execute Round 2 (via Bash with PULSAR_TASK_ID)
 # Phase 3: Medium → opus (default)
-claude --dangerously-skip-permissions "Phase 3: Add User Profile Endpoints..." &
+PULSAR_TASK_ID=phase-3-plan-20260108-1200 claude --dangerously-skip-permissions "Phase 3: Add User Profile Endpoints..." &
 
 # Phase 4: Low → sonnet
-claude --model sonnet --dangerously-skip-permissions "Phase 4: Add Login Validation..." &
+PULSAR_TASK_ID=phase-4-plan-20260108-1200 claude --model sonnet --dangerously-skip-permissions "Phase 4: Add Login Validation..." &
 
 # Phase 5: Low → sonnet
-claude --model sonnet --dangerously-skip-permissions "Phase 5: Update Documentation..." &
+PULSAR_TASK_ID=phase-5-plan-20260108-1200 claude --model sonnet --dangerously-skip-permissions "Phase 5: Update Documentation..." &
 
 wait
 
