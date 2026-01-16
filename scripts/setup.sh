@@ -1,8 +1,8 @@
 #!/bin/bash
-# setup.sh - Set up Nova-Pulsar folder structure and optional systemd service
+# setup.sh - Set up Starry Night folder structure and optional systemd service
 #
 # Usage: ./setup.sh [--with-systemd]
-#   --with-systemd: Also install the systemd user service for auto-execution
+#   --with-systemd: Also install the systemd user service for background execution
 
 set -e
 
@@ -26,15 +26,15 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${GREEN}Nova-Pulsar Setup${NC}"
-echo "=================="
+echo -e "${GREEN}Starry Night Setup${NC}"
+echo "==================="
 echo ""
 
 # Step 1: Create folder structure
 echo -e "${YELLOW}Creating folder structure...${NC}"
 
-mkdir -p "$PLANS_DIR/queued/auto"
-mkdir -p "$PLANS_DIR/queued/manual"
+mkdir -p "$PLANS_DIR/queued/background"
+mkdir -p "$PLANS_DIR/queued/interactive"
 mkdir -p "$PLANS_DIR/active"
 mkdir -p "$PLANS_DIR/review"
 mkdir -p "$PLANS_DIR/archived"
@@ -49,8 +49,8 @@ else
 fi
 
 echo "  Created: $PLANS_DIR/"
-echo "    ├── queued/auto/"
-echo "    ├── queued/manual/"
+echo "    ├── queued/background/"
+echo "    ├── queued/interactive/"
 echo "    ├── active/"
 echo "    ├── review/"
 echo "    ├── archived/"
@@ -115,7 +115,7 @@ fi
 echo -e "${GREEN}Setup complete!${NC}"
 echo ""
 echo "Next steps:"
-echo "  1. Install the plugin:  /plugin install AWLSEN/nova-pulsar"
-echo "  2. Create a plan:       /nova"
+echo "  1. Install the plugin:  /plugin install starry-night@awlsen-plugins --scope user"
+echo "  2. Create a plan:       /nova <task description>"
 echo "  3. Execute a plan:      /pulsar [plan-id]"
 echo ""

@@ -95,16 +95,14 @@ Each plan gets an ID like `plan-20260113-1430`. You'll see it when Nova saves yo
 - **Just run `/pulsar`** - Picks the most recent queued plan automatically
 - **Run `/pulsar plan-20260113-1430`** - Execute a specific plan
 
-To see your queued plans: `ls ~/comms/plans/queued/manual/`
+To see your queued plans: `ls ~/comms/plans/queued/interactive/`
 
 ### Execution Modes
 
 Nova will ask about execution mode:
 
-- **Manual** (recommended): You run `/pulsar` when you're ready to execute
-- **Auto** (coming soon): A background systemd service will watch the auto queue and execute plans automatically - perfect for "fire and forget" workflows
-
-For now, use **Manual** mode.
+- **Interactive** (recommended): You run `/pulsar` when you're ready to execute
+- **Background**: A systemd service watches the background queue and executes plans automatically - perfect for "fire and forget" workflows
 
 ### 3. Archive when finished
 

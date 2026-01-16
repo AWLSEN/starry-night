@@ -1,5 +1,7 @@
 #!/bin/bash
-# pulsar-watcher.sh - Watch for auto plans and execute them one at a time
+# pulsar-watcher.sh - Watch for background plans and execute them one at a time
+#
+# Part of Starry Night plugin
 #
 # Usage: ./pulsar-watcher.sh [--once] [--interval SECONDS]
 #   --once: Check once and exit (for cron jobs)
@@ -11,10 +13,11 @@
 # 3. Triggers execution via pulsar-auto.sh
 
 PLANS_DIR="$HOME/comms/plans"
-AUTO_QUEUE="$PLANS_DIR/queued/auto"
+BACKGROUND_QUEUE="$PLANS_DIR/queued/background"
 ACTIVE_DIR="$PLANS_DIR/active"
 LOGS_DIR="$PLANS_DIR/logs"
-SCRIPTS_DIR="$HOME/.claude/plugins/marketplaces/local-plugins/plugins/nova-pulsar/scripts"
+# Dynamically determine scripts directory from this script's location
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WATCHER_LOG="$LOGS_DIR/watcher.log"
 
 # Default: 5 minutes
@@ -63,10 +66,10 @@ is_plan_active() {
     return 1  # false, no active plan
 }
 
-# Count plans in auto queue
+# Count plans in background queue
 count_queued_plans() {
     local count=0
-    for f in "$AUTO_QUEUE"/*.md; do
+    for f in "$BACKGROUND_QUEUE"/*.md; do
         [ -f "$f" ] && ((count++))
     done
     echo $count
@@ -87,7 +90,7 @@ call_orbiter() {
     local plan_id
     plan_id=$(echo "$result" | grep -oE 'plan-[0-9]{8}-[0-9]{4}' | head -1)
 
-    if [ -n "$plan_id" ] && [ -f "$AUTO_QUEUE/$plan_id.md" ]; then
+    if [ -n "$plan_id" ] && [ -f "$BACKGROUND_QUEUE/$plan_id.md" ]; then
         echo "$plan_id"
     else
         echo ""
@@ -101,11 +104,11 @@ check_and_execute() {
 
     # No plans in queue
     if [ "$queued_count" -eq 0 ]; then
-        log "No plans in auto queue"
+        log "No plans in background queue"
         return
     fi
 
-    log "Found $queued_count plan(s) in auto queue"
+    log "Found $queued_count plan(s) in background queue"
 
     # Check if a plan is already running
     if is_plan_active; then
@@ -139,7 +142,7 @@ if [ "$RUN_ONCE" = true ]; then
     log "Check complete"
 else
     log "Pulsar Watcher started"
-    log "Monitoring: $AUTO_QUEUE"
+    log "Monitoring: $BACKGROUND_QUEUE"
     log "Poll interval: ${POLL_INTERVAL}s ($(( POLL_INTERVAL / 60 )) min)"
     log "Mode: Sequential (one plan at a time)"
     log "Scheduler: Orbiter (intelligent)"

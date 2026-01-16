@@ -257,14 +257,14 @@ Options:
 On approval:
 1. Generate ID: `plan-{YYYYMMDD}-{HHMM}`
 2. Save to:
-   - Auto: `~/comms/plans/queued/auto/{id}.md`
-   - Manual: `~/comms/plans/queued/manual/{id}.md`
+   - Background: `~/comms/plans/queued/background/{id}.md`
+   - Interactive: `~/comms/plans/queued/interactive/{id}.md`
 3. Update `~/comms/plans/board.json`
 
 ### Step 7: Handoff
 
-**Auto mode**: Tell user plan is queued, watcher will execute
-**Manual mode**: Tell user to run `/pulsar {plan-id}`
+**Background mode**: Tell user plan is queued, watcher will execute
+**Interactive mode**: Tell user to run `/pulsar {plan-id}`
 
 ---
 
@@ -277,7 +277,7 @@ On approval:
 - **ID**: plan-{timestamp}
 - **Type**: feature | bug | refactor | chore | docs
 - **Status**: queued
-- **Execution Mode**: auto | manual
+- **Execution Mode**: background | interactive
 - **Created**: {ISO timestamp}
 - **Worktree**: null
 
@@ -456,8 +456,8 @@ Execution:
   "title": "Plan title",
   "type": "feature",
   "status": "queued",
-  "executionMode": "auto",
-  "path": "queued/auto/plan-20260105-1530.md",
+  "executionMode": "background",
+  "path": "queued/background/plan-20260105-1530.md",
   "createdAt": "2026-01-05T15:30:00Z",
   "phases": 4,
   "parallelGroups": 2

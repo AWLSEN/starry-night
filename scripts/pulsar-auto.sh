@@ -1,5 +1,7 @@
 #!/bin/bash
-# pulsar-auto.sh - Auto-execute a plan in the background using Claude CLI
+# pulsar-auto.sh - Execute a plan in background mode using Claude CLI
+#
+# Part of Starry Night plugin
 #
 # Usage: ./pulsar-auto.sh <plan-id>
 # Example: ./pulsar-auto.sh plan-20260105-1530
@@ -23,13 +25,13 @@ fi
 
 # Check if plan exists
 PLAN_FILE=""
-if [ -f "$PLANS_DIR/queued/auto/$PLAN_ID.md" ]; then
-    PLAN_FILE="$PLANS_DIR/queued/auto/$PLAN_ID.md"
-elif [ -f "$PLANS_DIR/queued/manual/$PLAN_ID.md" ]; then
-    echo "Error: Plan $PLAN_ID is in manual queue, not auto"
+if [ -f "$PLANS_DIR/queued/background/$PLAN_ID.md" ]; then
+    PLAN_FILE="$PLANS_DIR/queued/background/$PLAN_ID.md"
+elif [ -f "$PLANS_DIR/queued/interactive/$PLAN_ID.md" ]; then
+    echo "Error: Plan $PLAN_ID is in interactive queue, not background"
     exit 1
 else
-    echo "Error: Plan $PLAN_ID not found in queued/auto/"
+    echo "Error: Plan $PLAN_ID not found in queued/background/"
     exit 1
 fi
 

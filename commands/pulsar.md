@@ -94,10 +94,10 @@ Response 1:
 ### Step 1: Load Plan
 
 **If plan-id provided**:
-- Look in `~/comms/plans/queued/auto/` and `~/comms/plans/queued/manual/`
+- Look in `~/comms/plans/queued/background/` and `~/comms/plans/queued/interactive/`
 
 **If no plan-id**:
-- Check `~/comms/plans/queued/manual/` first
+- Check `~/comms/plans/queued/interactive/` first
 - If multiple, ask user which one
 - If none, inform user to run `/nova` first
 
@@ -578,7 +578,7 @@ Plan {id} executed.
 **Pulsar Execution (running as GLM-4.7):**
 
 ```
-Step 1: Load plan from ~/comms/plans/queued/auto/plan-20260108-1200.md
+Step 1: Load plan from ~/comms/plans/queued/background/plan-20260108-1200.md
 
 Step 2: Analyze parallelism and agent selection
 - Phase 1 & 2: Independent (different files) → Round 1
