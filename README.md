@@ -1,12 +1,12 @@
-# Nova-Pulsar
+# Starry Night
 
 **Plan first, then execute.** A Claude Code plugin that helps you break down complex tasks into plans and execute them with parallel agents.
 
 ## Install
 
 ```bash
-/plugin marketplace add AWLSEN/nova-pulsar
-/plugin install nova-pulsar@awlsen-plugins --scope user
+/plugin marketplace add AWLSEN/starry-night
+/plugin install starry-night@awlsen-plugins --scope user
 ```
 
 Restart Claude Code after installing.

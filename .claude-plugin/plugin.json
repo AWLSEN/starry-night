@@ -1,5 +1,5 @@
 {
-  "name": "nova-pulsar",
+  "name": "starry-night",
   "version": "3.1.0",
   "description": "Planning and execution framework with multi-model routing. Nova plans using Codex for parallel research. Pulsar executes with intelligent model selection: Codex for architectural, Opus for complex, Sonnet for simple phases.",
   "author": {

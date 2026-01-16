@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "nova-pulsar",
+      "name": "starry-night",
       "source": "./",
       "description": "Plan first, then execute. Break down complex tasks into plans and execute them with parallel agents.",
       "version": "3.1.0"
