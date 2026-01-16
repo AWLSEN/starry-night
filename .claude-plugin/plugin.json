@@ -1,9 +1,12 @@
 {
   "name": "starry-night",
   "version": "3.1.0",
-  "description": "Planning and execution framework with multi-model routing. Nova plans using Codex for parallel research. Pulsar executes with intelligent model selection: Codex for architectural, Opus for complex, Sonnet for simple phases.",
+  "description": "Plan first, then execute. Break down complex tasks into plans and execute them with parallel agents.",
   "author": {
     "name": "AWLSEN"
   },
-  "keywords": ["planning", "execution", "parallel", "codex", "opus", "multi-model", "automation", "testing", "quality"]
+  "homepage": "https://github.com/AWLSEN/starry-night",
+  "repository": "https://github.com/AWLSEN/starry-night",
+  "license": "MIT",
+  "keywords": ["planning", "execution", "parallel", "multi-model", "automation"]
 }

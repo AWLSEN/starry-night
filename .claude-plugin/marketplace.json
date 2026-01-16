@@ -1,14 +1,21 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "awlsen-plugins",
+  "description": "AWLSEN plugins for Claude Code",
   "owner": {
     "name": "AWLSEN"
   },
   "plugins": [
     {
       "name": "starry-night",
-      "source": "./",
       "description": "Plan first, then execute. Break down complex tasks into plans and execute them with parallel agents.",
-      "version": "3.1.0"
+      "version": "3.1.0",
+      "author": {
+        "name": "AWLSEN"
+      },
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/AWLSEN/starry-night"
     }
   ]
 }

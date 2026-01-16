@@ -4,18 +4,13 @@
 
 ## Install
 
-**Step 1:** Add the marketplace
 ```bash
 /plugin marketplace add AWLSEN/starry-night
 ```
 
-**Step 2:** Install the plugin
-```bash
-/plugin install starry-night@awlsen-plugins
-```
-When prompted, select **"Install for you (user scope)"** for personal use.
-
 Restart Claude Code after installing.
+
+**Note:** This installs to user scope by default. For project/team scope, use `/plugin` UI after adding the marketplace.
 
 ## Directory Structure
 
