@@ -126,13 +126,32 @@ Each phase has a **Complexity** field. Route to the right agent:
 
 **Agent Selection:**
 
-1. Read the plan file with `Read` tool
-2. Look at each phase's **Complexity** field
-3. Choose method:
+1. **Check CLI availability** (read `~/comms/plans/.starry-night-status.json`):
+   ```json
+   {
+     "dependencies": {
+       "codex": true/false,
+       "opencode": true/false
+     }
+   }
+   ```
+2. Read the plan file with `Read` tool
+3. Look at each phase's **Complexity** field
+4. Choose method based on availability:
    - **Anthropic models (Opus/Sonnet)** → Use native **Task tool** with `subagent_type`
-   - **Codex** → Use **Bash** with `codex exec`
-   - **GLM** → Use **Bash** with `opencode run --model z.ai/glm-4.7`
-4. Launch ALL parallel phases in ONE response
+   - **Codex** (if available) → Use **Bash** with `codex exec`
+   - **GLM** (if opencode available) → Use **Bash** with `opencode run --model z.ai/glm-4.7`
+   - **CLI not available** → Fall back to native Task with `model=opus`
+5. Launch ALL parallel phases in ONE response
+
+**Fallback Rules (when CLI tools not installed):**
+
+| Requested | If Not Available | Fallback To |
+|-----------|------------------|-------------|
+| Codex | Not installed | Task subagent with `model=opus` |
+| OpenCode/GLM | Not installed | Task subagent with `model=opus` |
+
+**Do NOT fail if CLI tools are missing** - always fall back to native Anthropic agents.
 
 **Benefits of native Task subagents for Anthropic:**
 - Structured output (not raw CLI transcript)

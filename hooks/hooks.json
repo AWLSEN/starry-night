@@ -1,7 +1,18 @@
 {
-  "description": "Pulsar status tracking for sub-agent visibility",
+  "description": "Starry Night plugin hooks - setup and status tracking",
   "hooks": {
     "SessionStart": [
+      {
+        "matcher": "always",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/first-run.sh",
+            "timeout": 10,
+            "once": true
+          }
+        ]
+      },
       {
         "hooks": [
           {
