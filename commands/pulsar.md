@@ -154,14 +154,19 @@ Task:
 **Agent Selection:**
 
 1. Read the plan file with `Read` tool
-2. Look at each phase's **Complexity** and **Recommended Agent** fields
-3. Choose method:
+2. **Optionally** check `~/comms/plans/.starry-night-status.json` for CLI availability
+   - **If file doesn't exist** → Assume NO CLI tools available, use native Task only
+   - **If file exists** → Check `dependencies.codex` and `dependencies.opencode`
+3. Look at each phase's **Complexity** and **Recommended Agent** fields
+4. Choose method:
    - **No agent specified OR Anthropic** → Native Task with `subagent_type="starry-night:phase-executor"`
-   - **Codex specified** → CLI (if installed) → then output-processor
-   - **GLM specified** → CLI (if installed) → then output-processor
-   - **CLI not installed** → Fall back to native Task with `model=opus`
-4. Launch ALL parallel phases in ONE response
-5. **ALWAYS** run output-processor after CLI calls
+   - **Codex specified AND installed** → CLI → then output-processor
+   - **GLM specified AND opencode installed** → CLI → then output-processor
+   - **CLI requested but not installed** → Fall back to native Task with `model=opus`
+5. Launch ALL parallel phases in ONE response
+6. **ALWAYS** run output-processor after CLI calls
+
+**IMPORTANT:** If status file is missing, DO NOT fail. Just use native Task for everything.
 
 **Fallback Rules (when CLI tools not installed):**
 
