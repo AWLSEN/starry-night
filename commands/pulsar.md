@@ -119,45 +119,65 @@ Each phase has a **Complexity** field. Route to the right agent:
 
 | Complexity | Method | Agent |
 |------------|--------|-------|
-| **High (Architectural)** | CLI (Bash) | `codex exec` or `opencode run --model z.ai/glm-4.7` |
+| **High (Architectural)** | Native Task | `subagent_type="starry-night:phase-executor"` model=opus |
 | **High (Implementation)** | Native Task | `subagent_type="starry-night:phase-executor"` model=opus |
 | **Medium** | Native Task | `subagent_type="starry-night:phase-executor"` model=opus |
 | **Low** | Native Task | `subagent_type="starry-night:phase-executor"` model=sonnet |
 
+## CRITICAL: CLI vs Native Task Rules
+
+**DEFAULT: Always use native Task subagents for ALL phases.**
+
+**CLI (Bash) is ONLY for non-Anthropic models:**
+- `codex exec` → OpenAI Codex (if explicitly requested in plan)
+- `opencode run --model z.ai/glm-4.7` → GLM (if explicitly requested in plan)
+
+**When to use CLI:**
+1. Plan explicitly specifies `Recommended Agent: codex` or `Recommended Agent: glm`
+2. AND the CLI tool is installed (check status file)
+
+**When NOT to use CLI:**
+- Phase doesn't explicitly request Codex/GLM
+- CLI tool is not installed
+- Any Anthropic model is suitable (Opus, Sonnet, Haiku)
+
+**MANDATORY: Always process CLI output through output-processor:**
+```
+# After ANY CLI call, ALWAYS run:
+Task:
+  subagent_type: "starry-night:output-processor"
+  model: haiku
+  prompt: "ORIGINAL TASK: {what CLI was asked to do}
+           RAW OUTPUT: {CLI output}"
+```
+
 **Agent Selection:**
 
-1. **Check CLI availability** (read `~/comms/plans/.starry-night-status.json`):
-   ```json
-   {
-     "dependencies": {
-       "codex": true/false,
-       "opencode": true/false
-     }
-   }
-   ```
-2. Read the plan file with `Read` tool
-3. Look at each phase's **Complexity** field
-4. Choose method based on availability:
-   - **Anthropic models (Opus/Sonnet)** → Use native **Task tool** with `subagent_type`
-   - **Codex** (if available) → Use **Bash** with `codex exec`
-   - **GLM** (if opencode available) → Use **Bash** with `opencode run --model z.ai/glm-4.7`
-   - **CLI not available** → Fall back to native Task with `model=opus`
-5. Launch ALL parallel phases in ONE response
+1. Read the plan file with `Read` tool
+2. Look at each phase's **Complexity** and **Recommended Agent** fields
+3. Choose method:
+   - **No agent specified OR Anthropic** → Native Task with `subagent_type="starry-night:phase-executor"`
+   - **Codex specified** → CLI (if installed) → then output-processor
+   - **GLM specified** → CLI (if installed) → then output-processor
+   - **CLI not installed** → Fall back to native Task with `model=opus`
+4. Launch ALL parallel phases in ONE response
+5. **ALWAYS** run output-processor after CLI calls
 
 **Fallback Rules (when CLI tools not installed):**
 
 | Requested | If Not Available | Fallback To |
 |-----------|------------------|-------------|
 | Codex | Not installed | Task subagent with `model=opus` |
-| OpenCode/GLM | Not installed | Task subagent with `model=opus` |
+| GLM/OpenCode | Not installed | Task subagent with `model=opus` |
 
 **Do NOT fail if CLI tools are missing** - always fall back to native Anthropic agents.
 
-**Benefits of native Task subagents for Anthropic:**
+**Benefits of native Task subagents:**
 - Structured output (not raw CLI transcript)
 - Lower latency (no CLI startup)
 - Better error handling
 - Native model routing via `model` parameter
+- No need for output-processor step
 
 **Backward Compatibility:**
 - If plan has no **Complexity** field → default to `claude` (sonnet)
