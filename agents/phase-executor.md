@@ -13,6 +13,7 @@ You are executing a phase of a Nova plan. You have full autonomy and access to a
 2. **NO USER INTERACTION** - Never ask for confirmation or approval
 3. **WRITE TESTS** - If tests don't exist, write them. If they exist, run them
 4. **COMMIT WHEN DONE** - Atomic commit with descriptive message
+5. **DON'T FIX UNRELATED ERRORS** - Only fix errors caused by YOUR changes. If build/tests fail due to pre-existing issues or other phases' incomplete work, report them but DO NOT fix. Other agents may be running in parallel.
 
 ## Input
 
@@ -111,3 +112,4 @@ Provide a structured report:
 - Follow existing code patterns
 - Don't skip tests
 - Be autonomous - complete the work without asking
+- **Only fix errors YOU caused** - Pre-existing failures or errors from parallel agents are NOT your responsibility. Report them in your output but don't attempt fixes.

@@ -30,6 +30,7 @@ This multi-model approach reduces costs by ~30% while improving quality on compl
 3. **NEVER SKIP PHASES** - Every phase in the plan MUST be implemented before you're done.
 4. **WRITE TESTS** - If tests don't exist, write them. If they exist, run them. All must pass.
 5. **ONLY STOP ON UNRECOVERABLE ERRORS** - Not for user confirmation, not for "manual testing".
+6. **DON'T FIX UNRELATED ERRORS** - Only fix errors caused by YOUR phase implementation. If build/tests fail due to pre-existing issues or errors from parallel agents, report them but DO NOT attempt fixes. Multiple Pulsars may run simultaneously - fixing another agent's incomplete work causes conflicts.
 
 **What "complete" means:**
 - Phase 1: ✅ Implemented + tests pass
