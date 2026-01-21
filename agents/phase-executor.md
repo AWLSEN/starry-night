@@ -81,6 +81,29 @@ git add -A && git commit -m "feat: {phase description}
 Co-Authored-By: Pulsar <noreply@anthropic.com>"
 ```
 
+### Step 5: Mark Completed
+
+Before returning your report, mark this phase as completed in the status file:
+
+```bash
+STATUS_FILE="$HOME/comms/plans/{PROJECT}/active/{PLAN_ID}/status/phase-{PHASE}.status"
+if [[ -f "$STATUS_FILE" ]]; then
+    jq '.status = "completed" | .completed_at = (now | strftime("%Y-%m-%dT%H:%M:%SZ"))' \
+        "$STATUS_FILE" > "$STATUS_FILE.tmp" && mv "$STATUS_FILE.tmp" "$STATUS_FILE"
+fi
+```
+
+**Concrete example** (for PROJECT: my-project, PLAN_ID: plan-20260108-1200, PHASE: 2):
+```bash
+STATUS_FILE="$HOME/comms/plans/my-project/active/plan-20260108-1200/status/phase-2.status"
+if [[ -f "$STATUS_FILE" ]]; then
+    jq '.status = "completed" | .completed_at = (now | strftime("%Y-%m-%dT%H:%M:%SZ"))' \
+        "$STATUS_FILE" > "$STATUS_FILE.tmp" && mv "$STATUS_FILE.tmp" "$STATUS_FILE"
+fi
+```
+
+**Why this matters**: This enables Conductor to detect phase completion and broadcast real-time progress (e.g., "3/7 phases complete") to the frontend.
+
 ## Output
 
 Provide a structured report:
