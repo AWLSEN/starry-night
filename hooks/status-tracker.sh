@@ -23,6 +23,7 @@ TASK_ID=""
 PROJECT_NAME=""
 PLAN_ID=""
 PHASE_NUM=""
+THREAD_ID=""
 PID_IN_MARKER=""
 
 # 1. Check env var first (CLI agents / backward compat)
@@ -77,6 +78,7 @@ if [[ -z "$TASK_ID" ]]; then
         PROJECT_NAME=$(jq -r '.project // ""' "$MARKER_FILE" 2>/dev/null || echo "")
         PLAN_ID=$(jq -r '.plan_id // ""' "$MARKER_FILE" 2>/dev/null || echo "")
         PHASE_NUM=$(jq -r '.phase // ""' "$MARKER_FILE" 2>/dev/null || echo "")
+        THREAD_ID=$(jq -r '.thread_id // ""' "$MARKER_FILE" 2>/dev/null || echo "")
     fi
 fi
 
@@ -146,6 +148,7 @@ TMP_FILE="${STATUS_FILE}.tmp.$$"
 if jq -n \
     --arg task_id "$TASK_ID" \
     --arg project "$PROJECT_NAME" \
+    --arg thread_id "$THREAD_ID" \
     --arg status "running" \
     --argjson tool_count "$TOOL_COUNT" \
     --arg last_tool "$TOOL_NAME" \
@@ -155,6 +158,7 @@ if jq -n \
     '{
         task_id: $task_id,
         project: $project,
+        thread_id: $thread_id,
         status: $status,
         tool_count: $tool_count,
         last_tool: $last_tool,
