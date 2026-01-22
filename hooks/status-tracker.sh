@@ -148,6 +148,8 @@ TMP_FILE="${STATUS_FILE}.tmp.$$"
 if jq -n \
     --arg task_id "$TASK_ID" \
     --arg project "$PROJECT_NAME" \
+    --arg plan_id "$PLAN_ID" \
+    --argjson phase "$PHASE_NUM" \
     --arg thread_id "$THREAD_ID" \
     --arg status "running" \
     --argjson tool_count "$TOOL_COUNT" \
@@ -158,7 +160,9 @@ if jq -n \
     '{
         task_id: $task_id,
         project: $project,
-        thread_id: $thread_id,
+        plan_id: $plan_id,
+        phase: $phase,
+        thread_id: (if $thread_id == "" then null else $thread_id end),
         status: $status,
         tool_count: $tool_count,
         last_tool: $last_tool,

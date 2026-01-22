@@ -92,6 +92,7 @@ TOOL_COUNT=$(echo "$CURRENT_STATUS" | jq -r '.tool_count // 0' 2>/dev/null || ec
 STARTED_AT=$(echo "$CURRENT_STATUS" | jq -r '.started_at // ""' 2>/dev/null || echo "")
 LAST_TOOL=$(echo "$CURRENT_STATUS" | jq -r '.last_tool // ""' 2>/dev/null || echo "")
 LAST_FILE=$(echo "$CURRENT_STATUS" | jq -r '.last_file // ""' 2>/dev/null || echo "")
+THREAD_ID=$(echo "$CURRENT_STATUS" | jq -r '.thread_id // ""' 2>/dev/null || echo "")
 # If started_at is empty, initialize it
 [[ -z "$STARTED_AT" ]] && STARTED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -113,6 +114,9 @@ TMP_FILE="${STATUS_FILE}.tmp.$$"
 if jq -n \
     --arg task_id "$TASK_ID" \
     --arg project "$PROJECT_NAME" \
+    --arg plan_id "$PLAN_ID" \
+    --argjson phase "$PHASE_NUM" \
+    --arg thread_id "$THREAD_ID" \
     --arg status "$FINAL_STATUS" \
     --argjson tool_count "$TOOL_COUNT" \
     --arg last_tool "$LAST_TOOL" \
@@ -123,6 +127,9 @@ if jq -n \
     '{
         task_id: $task_id,
         project: $project,
+        plan_id: $plan_id,
+        phase: $phase,
+        thread_id: (if $thread_id == "" then null else $thread_id end),
         status: $status,
         tool_count: $tool_count,
         last_tool: $last_tool,
